@@ -82,19 +82,18 @@ struct SocketMapKeyHasher {
 int SocketMapInsert(const SocketMapKey& key, SocketId* id,
                     const std::shared_ptr<SocketSSLContext>& ssl_ctx,
                     bool use_rdma,
-                    bool use_gdr,
                     const HealthCheckOption& hc_option);
 
 inline int SocketMapInsert(const SocketMapKey& key, SocketId* id,
                     const std::shared_ptr<SocketSSLContext>& ssl_ctx) {
     HealthCheckOption hc_option;
-    return SocketMapInsert(key, id, ssl_ctx, false, false, hc_option);
+    return SocketMapInsert(key, id, ssl_ctx, false, hc_option);
 }
 
 inline int SocketMapInsert(const SocketMapKey& key, SocketId* id) {
     std::shared_ptr<SocketSSLContext> empty_ptr;
     HealthCheckOption hc_option;
-    return SocketMapInsert(key, id, empty_ptr, false, false, hc_option);
+    return SocketMapInsert(key, id, empty_ptr, false, hc_option);
 }
 
 // Find the SocketId associated with `key'.
@@ -156,18 +155,17 @@ public:
     int Insert(const SocketMapKey& key, SocketId* id,
                const std::shared_ptr<SocketSSLContext>& ssl_ctx,
                bool use_rdma,
-               bool use_gdr,
                const HealthCheckOption& hc_option);
 
     int Insert(const SocketMapKey& key, SocketId* id,
                const std::shared_ptr<SocketSSLContext>& ssl_ctx) {
         HealthCheckOption hc_option;
-        return Insert(key, id, ssl_ctx, false, false, hc_option);
+        return Insert(key, id, ssl_ctx, false, hc_option);   
     }
     int Insert(const SocketMapKey& key, SocketId* id) {
         std::shared_ptr<SocketSSLContext> empty_ptr;
         HealthCheckOption hc_option;
-        return Insert(key, id, empty_ptr, false, false, hc_option);
+        return Insert(key, id, empty_ptr, false, hc_option);
     }
 
     void Remove(const SocketMapKey& key, SocketId expected_id);

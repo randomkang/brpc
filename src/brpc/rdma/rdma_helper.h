@@ -33,10 +33,6 @@ namespace rdma {
 // Exit if failed
 void GlobalRdmaInitializeOrDie();
 
-// Initialize GDR environment
-// Exit if failed
-void GlobalGdrInitializeOrDie();
-
 // Initialize RDMA polling mode with tag
 bool InitPollingModeWithTag(bthread_tag_t tag,
                             std::function<void(void)> callback = nullptr,
