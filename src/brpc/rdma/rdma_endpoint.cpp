@@ -169,8 +169,9 @@ RdmaResource::~RdmaResource() {
     }
 }
 
-RdmaEndpoint::RdmaEndpoint(Socket* s)
+RdmaEndpoint::RdmaEndpoint(Socket* s, bool use_gdr)
     : _socket(s)
+    : _use_gdr(use_gdr)
     , _state(UNINIT)
     , _resource(NULL)
     , _send_cq_events(0)
@@ -453,7 +454,7 @@ void* RdmaEndpoint::ProcessHandshakeAtClient(void* arg) {
     local_msg.msg_len = g_rdma_hello_msg_len;
     local_msg.hello_ver = g_rdma_hello_version;
     local_msg.impl_ver = g_rdma_impl_version;
-    local_msg.block_size = g_rdma_recv_block_size;
+    local_msg.block_size = ep->use_gdr() ? g_gdr_recv_block_size : g_rdma_recv_block_size;
     local_msg.sq_size = ep->_sq_size;
     local_msg.rq_size = ep->_rq_size;
     local_msg.lid = GetRdmaLid();
@@ -671,7 +672,7 @@ void* RdmaEndpoint::ProcessHandshakeAtServer(void* arg) {
     } else {
         local_msg.lid = GetRdmaLid();
         local_msg.gid = GetRdmaGid();
-        local_msg.block_size = g_rdma_recv_block_size;
+        local_msg.block_size = ep->use_gdr() ? g_gdr_recv_block_size : g_rdma_recv_block_size;
         local_msg.sq_size = ep->_sq_size;
         local_msg.rq_size = ep->_rq_size;
         local_msg.hello_ver = g_rdma_hello_version;
@@ -1005,10 +1006,14 @@ ssize_t RdmaEndpoint::HandleCompletion(ibv_wc& wc) {
         // Please note that only the first wc.byte_len bytes is valid
         if (wc.byte_len > 0) {
 #if BRPC_WITH_GDR
-            zerocopy = true;
+            if (_use_gdr) {
+                zerocopy = true;
+            } else
 #else
-            if (wc.byte_len < (uint32_t)FLAGS_rdma_zerocopy_min_size) {
-                zerocopy = false;
+            {
+                if (wc.byte_len < (uint32_t)FLAGS_rdma_zerocopy_min_size) {
+                    zerocopy = false;
+                }
             }
 #endif // BRPC_WITH_GDR
             CHECK(_state != FALLBACK_TCP);
@@ -1100,35 +1105,43 @@ int RdmaEndpoint::PostRecv(uint32_t num, bool zerocopy) {
             _rbuf[_rq_received].clear();
 
 #if BRPC_WITH_GDR
-            butil::gdr::BlockPoolAllocator* device_allocator = butil::gdr::BlockPoolAllocators::singleton()->get_gpu_allocator();
-            void* device_ptr = device_allocator->AllocateRaw(g_rdma_recv_block_size);
-            auto deleter = [device_allocator](void* data) { device_allocator->DeallocateRaw(data); };
-            lkey = device_allocator->get_lkey(device_ptr);
-            uint64_t data_meta = (static_cast<uint64_t>(butil::IOBuf::GPU_MEMORY) << 32) | lkey;
-            _rbuf[_rq_received].append_user_data_with_meta(device_ptr, g_rdma_recv_block_size, deleter , data_meta);
-            _rbuf_data[_rq_received] = device_ptr;
+            if (_use_gdr) {
+                butil::gdr::BlockPoolAllocator* device_allocator = butil::gdr::BlockPoolAllocators::singleton()->get_gpu_allocator();
+                void* device_ptr = device_allocator->AllocateRaw(g_rdma_recv_block_size);
+                auto deleter = [device_allocator](void* data) { device_allocator->DeallocateRaw(data); };
+                lkey = device_allocator->get_lkey(device_ptr);
+                uint64_t data_meta = (static_cast<uint64_t>(butil::IOBuf::GPU_MEMORY) << 32) | lkey;
+                _rbuf[_rq_received].append_user_data_with_meta(device_ptr, g_rdma_recv_block_size, deleter , data_meta);
+                _rbuf_data[_rq_received] = device_ptr;
+            } else
 #else
-            butil::IOBufAsZeroCopyOutputStream os(&_rbuf[_rq_received],
-                    g_rdma_recv_block_size + IOBUF_BLOCK_HEADER_LEN);
-            int size = 0;
-            if (!os.Next(&_rbuf_data[_rq_received], &size)) {
-                // Memory is not enough for preparing a block
-                PLOG(WARNING) << "Fail to allocate rbuf";
-                return -1;
-            } else {
-                CHECK(static_cast<uint32_t>(size) == g_rdma_recv_block_size) << size;
+            {
+                butil::IOBufAsZeroCopyOutputStream os(&_rbuf[_rq_received],
+                        g_rdma_recv_block_size + IOBUF_BLOCK_HEADER_LEN);
+                int size = 0;
+                if (!os.Next(&_rbuf_data[_rq_received], &size)) {
+                    // Memory is not enough for preparing a block
+                    PLOG(WARNING) << "Fail to allocate rbuf";
+                    return -1;
+                } else {
+                    CHECK(static_cast<uint32_t>(size) == g_rdma_recv_block_size) << size;
+                }
             }
 #endif  // if BRPC_WITH_GDR
         }
 #if BRPC_WITH_GDR
-        if (DoPostRecvGDR(_rbuf_data[_rq_received], g_rdma_recv_block_size, lkey) < 0) {
-            _rbuf[_rq_received].clear();
-            return -1;
-        }
+        if (_use_gdr) {
+            if (DoPostRecvGDR(_rbuf_data[_rq_received], g_rdma_recv_block_size, lkey) < 0) {
+                _rbuf[_rq_received].clear();
+                return -1;
+            }
+        } else
 #else
-        if (DoPostRecv(_rbuf_data[_rq_received], g_rdma_recv_block_size) < 0) {
-            _rbuf[_rq_received].clear();
-            return -1;
+        {
+            if (DoPostRecv(_rbuf_data[_rq_received], g_rdma_recv_block_size) < 0) {
+                _rbuf[_rq_received].clear();
+                return -1;
+            }
         }
 #endif  // if BRPC_WITH_GDR
 
@@ -1676,9 +1689,13 @@ void RdmaEndpoint::DebugInfo(std::ostream& os, butil::StringPiece connector) con
 
 int RdmaEndpoint::GlobalInitialize() {
 #if BRPC_WITH_GDR
-    LOG(INFO) << ", gdr_block_size_kb: " << butil::gdr::gdr_block_size_kb;
-    g_rdma_recv_block_size = butil::gdr::gdr_block_size_kb * 1024 - IOBUF_BLOCK_HEADER_LEN;
-#else
+    g_gdr_recv_block_size = butil::gdr::GetGdrBlockSize() * 1024 - IOBUF_BLOCK_HEADER_LEN;
+    LOG(INFO) << "g_gdr_recv_block_size: " << g_gdr_recv_block_size;
+#endif // BRPC_WITH_GDR
+    return 0;
+}
+
+int RdmaEndpoint::GlobalInitialize() {
     if (FLAGS_rdma_recv_block_type == "default") {
         g_rdma_recv_block_size = GetBlockSize(0) - IOBUF_BLOCK_HEADER_LEN;
     } else if (FLAGS_rdma_recv_block_type == "large") {
@@ -1691,7 +1708,6 @@ int RdmaEndpoint::GlobalInitialize() {
         errno = EINVAL;
         return -1;
     }
-#endif // BRPC_WITH_GDR
 
     LOG(INFO) << "rdma_use_polling :" << FLAGS_rdma_use_polling
       << ", rdma_poller_num : " << FLAGS_rdma_poller_num

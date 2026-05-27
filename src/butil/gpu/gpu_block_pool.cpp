@@ -23,6 +23,8 @@
 #include "gpu_block_pool.h"
 namespace butil {
 namespace gdr {
+DEFINE_int32(gdr_block_size_kb, 512, "gdr block size in KB");
+DEFINE_int32(max_gdr_regions, 32, "max num of gdr regions");
 
 #define CHECK_CUDA(call)  \
 do {                                                                     \
@@ -33,6 +35,10 @@ do {                                                                     \
         << __FILE__ << ": " << __LINE__;                        \
     }                                                                      \
 } while (0);
+
+size_t GetGdrBlockSize() {
+    return FLAGS_gdr_block_size_kb * 1024;
+}
 
 bool verify_same_context() {
   static int original_device = -1;
@@ -167,7 +173,7 @@ BlockPoolAllocator::~BlockPoolAllocator() {
     printStatistics();
 #endif
 
-    for (int i = 0; i < max_regions; i++) {
+    for (int i = 0; i < FLAGS_max_gdr_regions; i++) {
         Region* r = &g_regions[i];
         if (!r->mr) {
             return;
@@ -190,7 +196,7 @@ Region* BlockPoolAllocator::GetRegion(const void* buf) {
     }
     Region* r = NULL;
     uintptr_t addr = (uintptr_t)buf;
-    for (int i = 0; i < max_regions; ++i) {
+    for (int i = 0; i < FLAGS_max_gdr_regions; ++i) {
         if (g_regions[i].aligned_start == 0) {
             break;
         }
@@ -277,7 +283,7 @@ void BlockPoolAllocator::printStatistics() const {
 }
 
 void BlockPoolAllocator::extendRegion() {
-    if (g_region_num == max_regions) {
+    if (g_region_num == FLAGS_max_gdr_regions) {
         LOG(FATAL) << "Gdr Memory pool reaches max regions";
         return ;
     }

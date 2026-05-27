@@ -36,17 +36,7 @@
 namespace butil {
 namespace gdr {
 
-static int gdr_block_size_kb = [](){
-    int ret = 64;
-    const char* env_var_val = getenv("GDR_BLOCK_SIZE_KB");
-    if (env_var_val == nullptr) {
-        return ret;
-    }
-    ret = std::stoi(env_var_val);
-
-    return ret;
-}();
-
+size_t GetGdrBlockSize();
 void* get_gpu_mem(int gpu_id, int64_t gpu_mem_size);
 void* get_cpu_mem(int gpu_id, int64_t cpu_mem_size);
 
@@ -81,9 +71,7 @@ class BlockPoolAllocator {
     const size_t REGION_SIZE;
 
     BlockHeader* freeList;
-    static constexpr size_t max_regions = 16;
     int g_region_num {0};
-    Region g_regions[max_regions];
     std::mutex poolMutex;
 
     // 统计信息
