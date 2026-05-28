@@ -104,7 +104,7 @@ public:
                     LOG(FATAL) << "Failed to register MR:" << strerror(errno)
                         << ", addr:" << _addr;
                 }
-                auto deleter = [](void* date) {};
+                auto deleter = [](void* data) {};
                 _attachment.append_user_data_with_meta(_addr, attachment_size, deleter, mr->lkey);
             }
             else
