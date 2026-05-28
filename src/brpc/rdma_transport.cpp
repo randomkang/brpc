@@ -31,6 +31,8 @@ extern SocketVarsCollector *g_vars;
 
 void RdmaTransport::DoInit(Socket *socket, const SocketOptions &options, bool use_gdr) {
     CHECK(_rdma_ep == NULL);
+    // gdr mode is a special mode of rdma mode.
+    // both rdma mode and gdr mode need init rdma::RdmaEndpoint.
     if (options.socket_mode == SOCKET_MODE_RDMA ||
             options.socket_mode == SOCKET_MODE_GDR) {
         _rdma_ep = new(std::nothrow)rdma::RdmaEndpoint(socket, use_gdr);

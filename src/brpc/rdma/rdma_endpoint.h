@@ -77,10 +77,12 @@ public:
     explicit RdmaEndpoint(Socket* s, bool use_gdr = false);
     ~RdmaEndpoint() override;
 
-    // Global initialization
+    // Global Rdma initialization
     // Return 0 if success, -1 if failed and errno set
     static int GlobalInitialize();
 
+    // Global Gdr initialization
+    // Return 0 if success, -1 if failed and errno set
     static int GlobalGdrInitialize();
 
     static void GlobalRelease();
@@ -180,8 +182,16 @@ private:
     //     -1:  failed, errno set
     int DoPostRecv(void* block, size_t block_size);
 
-
+    // Post a WR pointing to the gpu block to the local Recv Queue
+    // Arguments:
+    //     block: the gpu addr to receive data (ibv_sge.addr)
+    //     block_size: the maximum length can be received (ibv_sge.length)
+    //     lkey: the lkey of block
+    // Return:
+    //     0:   success
+    //     -1:  failed, errno set
     int DoPostRecvGDR(void* block, size_t block_size, uint32_t lkey);
+
     // Read at most len bytes from fd in _socket to data
     // wait for _read_butex if encounter EAGAIN
     // return -1 if encounter other errno (including EOF)

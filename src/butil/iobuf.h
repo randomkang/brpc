@@ -145,6 +145,7 @@ public:
 #if BRPC_WITH_GDR
     size_t cutn_from_gpu(IOBuf* out, size_t n);
     size_t copy_from_gpu(void* d, size_t n, size_t pos = 0, bool to_gpu = false) const;
+    bool is_gpu_memory();
 #endif  // BRPC_WITH_GDR
 
     // Cut off 1 byte from the front side and set to *c
@@ -265,6 +266,8 @@ public:
     // The meta is specified with append_user_data_with_meta before.
     // 0 means the meta is invalid.
     uint64_t get_first_data_meta();
+
+    // Get the data addr of the first byte in this IOBuf.
     void* get_first_data_ptr();
 
     // Resizes the buf to a length of n characters.

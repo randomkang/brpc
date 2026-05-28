@@ -486,7 +486,6 @@ static void GlobalRdmaInitializeOrDieImpl() {
         ExitWithError();
     }
 
-    g_gpu_index = FLAGS_gpu_index;
     // Find the first active port
     g_port_num = FLAGS_rdma_port;
     int available_devices;
@@ -591,6 +590,8 @@ static void GlobalRdmaInitializeOrDieImpl() {
 
 static void GlobalGdrInitializeOrDieImpl() {
 #if BRPC_WITH_GDR
+    g_gpu_index = FLAGS_gpu_index;
+
     if (!butil::gdr::InitGPUBlockPool(g_gpu_index, GetRdmaPd())) {
         PLOG(ERROR) << "Fail to initialize RDMA GPU memory pool";
         ExitWithError();
@@ -716,7 +717,6 @@ uint8_t GetRdmaPortNum() {
 int GetGPUIndex() {
     return g_gpu_index;
 }
-
 
 bool IsRdmaAvailable() {
     return g_rdma_available.load(butil::memory_order_acquire);

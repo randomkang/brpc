@@ -19,6 +19,8 @@
 
 #include <iostream>
 #include <chrono>
+#include <gflags/gflags.h>
+#include <sys/stat.h>
 #include "butil/fast_rand.h"
 #include "gpu_block_pool.h"
 namespace butil {
@@ -97,6 +99,19 @@ BlockPoolAllocators* BlockPoolAllocators::singleton() {
     return instance_;
 }
 
+void BlockPoolAllocators::init(int gpu_id, ibv_pd* pd) {
+    LOG(INFO) << "set GPU BlockPoolAllocator for " << gpu_id;
+    size_t region_size = 1024LL * 1024 * 1024;
+    size_t block_size = FLAGS_gdr_block_size_kb * 1024;
+    gpu_mem_alloc = new BlockPoolAllocator(gpu_id, true, pd, block_size, region_size);
+
+    region_size = 32LL * 1024 * 1024;
+    block_size = 512;
+    cpu_mem_alloc = new BlockPoolAllocator(gpu_id, false, pd, block_size, region_size);
+
+    gpu_stream_pool = new GPUStreamPool(gpu_id);
+}
+
 bool InitGPUBlockPool(int gpu_id, ibv_pd* pd) {
     BlockPoolAllocators::singleton()->init(gpu_id, pd);
     return true;
@@ -148,21 +163,21 @@ static BlockHeaderList* get_bh_list() {
     return bh_list;
 }
 
-
-BlockPoolAllocator::BlockPoolAllocator(int gpuId, bool onGpu, ibv_pd* brpc_pd,
-    size_t blockSize, size_t regionSize) :
-    gpu_id(gpuId)
-    , on_gpu(onGpu)
+BlockPoolAllocator::BlockPoolAllocator(int gpu_id, bool on_gpu, ibv_pd* brpc_pd,
+    size_t block_size, size_t region_size) :
+    gpu_id(gpu_id)
+    , on_gpu(on_gpu)
     , pd(brpc_pd)
-    , BLOCK_SIZE(std::max(blockSize, sizeof(BlockHeader)))
-    , REGION_SIZE((regionSize / blockSize) * blockSize)  // 对齐到块大小的倍数
+    , BLOCK_SIZE(std::max(block_size, sizeof(BlockHeader)))
+    , REGION_SIZE((region_size / block_size) * block_size)  // 对齐到块大小的倍数
     , freeList(nullptr)
     , g_region_num(0)
     , totalAllocated(0)
     , totalDeallocated(0)
     , peakUsage(0) {
+    g_regions.resize(FLAGS_max_gdr_regions);
     LOG(INFO) << "Memory Pool initialized: block_size=" << BLOCK_SIZE 
-      << ", region_size=" << REGION_SIZE 
+      << ", region_size=" << REGION_SIZE  << ", max_gdr_regions=" << FLAGS_max_gdr_regions
       << ", gpu_id=" << gpu_id << ", on_gpu=" << on_gpu << ", pd=" << pd;
 
     extendRegion();
@@ -215,7 +230,13 @@ uint32_t BlockPoolAllocator::get_lkey(const void* buf) {
         LOG(ERROR) << "can not get a region for buf " << buf;
         return 0;
     }
-    return r->lkey;
+    
+    if(!r->mr) {
+        LOG(FATAL) << "region has not been registered into rdma yet, addr:" << r->start;
+        return 0;
+    }
+
+    return r->mr->lkey;
 }
 
 void* BlockPoolAllocator::AllocateRaw(size_t num_bytes) {
@@ -247,7 +268,7 @@ void* BlockPoolAllocator::AllocateRaw(size_t num_bytes) {
     auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(endTime - startTime);
 
 #ifdef DEBUG
-    if (duration.count() > 1000) {  // 如果分配时间超过1微秒
+    if (duration.count() > 1000) {
         LOG(INFO) << "Slow allocation: " << duration.count() << " ns";
     }
 #endif
@@ -268,7 +289,6 @@ void BlockPoolAllocator::DeallocateRaw(void* ptr) {
     totalDeallocated++;
 }
 
-// 获取统计信息
 void BlockPoolAllocator::printStatistics() const {
     LOG(INFO) << "=== Memory Pool Statistics ===";
     LOG(INFO) << "Total regions: " << g_region_num
@@ -314,8 +334,8 @@ void BlockPoolAllocator::extendRegion() {
     auto mr = ibv_reg_mr(pd, aligned_ptr, aligned_bytes,
             IBV_ACCESS_LOCAL_WRITE |
             IBV_ACCESS_REMOTE_READ |
-            IBV_ACCESS_REMOTE_WRITE);
-    //IBV_ACCESS_RELAXED_ORDERING);
+            IBV_ACCESS_REMOTE_WRITE |
+            IBV_ACCESS_RELAXED_ORDERING);
 
     if (!mr) {
         LOG(FATAL) << "Failed to register MR: " << strerror(errno)
@@ -333,7 +353,6 @@ void BlockPoolAllocator::extendRegion() {
     region->mr = mr;
     region->size = REGION_SIZE;
     region->aligned_size = aligned_bytes;
-    region->lkey = mr->lkey;
     region->blockCount = blockCount;
 
 

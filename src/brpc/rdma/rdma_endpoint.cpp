@@ -19,8 +19,8 @@
 
 #include <gflags/gflags.h>
 #include "butil/fd_utility.h"
-#include "butil/logging.h"                   // CHECK, LOG
 #include "butil/gpu/gpu_block_pool.h"
+#include "butil/logging.h"                   // CHECK, LOG
 #include "butil/sys_byteorder.h"             // HostToNet,NetToHost
 #include "bthread/bthread.h"
 #include "brpc/errno.pb.h"
@@ -1107,14 +1107,13 @@ int RdmaEndpoint::PostRecv(uint32_t num, bool zerocopy) {
 #if BRPC_WITH_GDR
             if (_use_gdr) {
                 butil::gdr::BlockPoolAllocator* device_allocator = butil::gdr::BlockPoolAllocators::singleton()->get_gpu_allocator();
-                void* device_ptr = device_allocator->AllocateRaw(g_rdma_recv_block_size);
+                void* device_ptr = device_allocator->AllocateRaw(g_gdr_recv_block_size);
                 auto deleter = [device_allocator](void* data) { device_allocator->DeallocateRaw(data); };
                 lkey = device_allocator->get_lkey(device_ptr);
-                uint64_t data_meta = (static_cast<uint64_t>(butil::IOBuf::GPU_MEMORY) << 32) | lkey;
-                _rbuf[_rq_received].append_user_data_with_meta(device_ptr, g_rdma_recv_block_size, deleter , data_meta);
+                _rbuf[_rq_received].append_user_data_with_meta(device_ptr, g_gdr_recv_block_size, deleter, data_meta, lkey);
                 _rbuf_data[_rq_received] = device_ptr;
             } else
-#else
+#endif  // if BRPC_WITH_GDR
             {
                 butil::IOBufAsZeroCopyOutputStream os(&_rbuf[_rq_received],
                         g_rdma_recv_block_size + IOBUF_BLOCK_HEADER_LEN);
@@ -1127,7 +1126,6 @@ int RdmaEndpoint::PostRecv(uint32_t num, bool zerocopy) {
                     CHECK(static_cast<uint32_t>(size) == g_rdma_recv_block_size) << size;
                 }
             }
-#endif  // if BRPC_WITH_GDR
         }
 #if BRPC_WITH_GDR
         if (_use_gdr) {
@@ -1136,14 +1134,13 @@ int RdmaEndpoint::PostRecv(uint32_t num, bool zerocopy) {
                 return -1;
             }
         } else
-#else
+#endif  // if BRPC_WITH_GDR
         {
             if (DoPostRecv(_rbuf_data[_rq_received], g_rdma_recv_block_size) < 0) {
                 _rbuf[_rq_received].clear();
                 return -1;
             }
         }
-#endif  // if BRPC_WITH_GDR
 
         --num;
         ++_rq_received;
@@ -1708,14 +1705,6 @@ int RdmaEndpoint::GlobalInitialize() {
         errno = EINVAL;
         return -1;
     }
-
-    LOG(INFO) << "rdma_use_polling :" << FLAGS_rdma_use_polling
-      << ", rdma_poller_num : " << FLAGS_rdma_poller_num
-      << ", rdma_poller_yield : " << FLAGS_rdma_poller_yield
-      << ", rdma_sq_size: " << FLAGS_rdma_sq_size
-      << ", rdma_rq_size: " << FLAGS_rdma_rq_size
-      << ", rdma_zerocopy_min_size: " << FLAGS_rdma_zerocopy_min_size
-      << ", g_rdma_recv_block_size: " << g_rdma_recv_block_size;
 
     g_rdma_resource_mutex = new butil::Mutex;
     for (int i = 0; i < FLAGS_rdma_prepared_qp_cnt; ++i) {

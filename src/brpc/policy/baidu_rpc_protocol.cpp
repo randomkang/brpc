@@ -76,6 +76,11 @@ DECLARE_bool(pb_enum_as_number);
 // Pack header into `buf'
 
 const int header_size = 12;
+// if we recv data into gpu, the header/meta/body will be copied to cpu and processed.
+// in to to limit the count of d2h, we will prefetch 512B from gpu to cpu.
+// if header_size + meta_size + body_size(without attachment) is less than 512, then one
+// d2h is enough for one rpc.
+
 const int prefetch_d2h_size = 512;
 
 inline void PackRpcHeader(char* rpc_header, uint32_t meta_size, int payload_size) {
@@ -119,8 +124,7 @@ ParseResult ParseRpcMessage(butil::IOBuf* source, Socket* socket,
 
 #if BRPC_WITH_GDR
     void* prefetch_d2h_data = NULL;
-    uint64_t data_meta = source->get_first_data_meta();
-    bool is_gpu_memory = (data_meta > 0 && data_meta <= UINT_MAX);
+    bool is_gpu_memory = source->is_gpu_memory();
     butil::gdr::BlockPoolAllocator* host_allocator = butil::gdr::BlockPoolAllocators::singleton()->get_cpu_allocator();
     if (is_gpu_memory) {
         prefetch_d2h_data = host_allocator->AllocateRaw(prefetch_d2h_size);
@@ -130,12 +134,11 @@ ParseResult ParseRpcMessage(butil::IOBuf* source, Socket* socket,
         n = source->copy_from_gpu(prefetch_d2h_data, prefetch_d2h_size);
         size_t copy_size = n > 12 ? 12 : n;
         memcpy(header_buf, prefetch_d2h_data, copy_size);
-    } else {
+    } else
+#endif  // BRPC_WITH_GDR
+    {
         n = source->copy_to(header_buf, sizeof(header_buf));
     }
-#else
-    n = source->copy_to(header_buf, sizeof(header_buf));
-#endif  // BRPC_WITH_GDR
 
     do {
         if (n >= 4) {
@@ -199,14 +202,12 @@ ParseResult ParseRpcMessage(butil::IOBuf* source, Socket* socket,
             source->cutn_from_gpu(&msg->meta, meta_size);
         }
         source->cutn(&msg->payload, body_size - meta_size);
-    } else {
+    } else
+#endif  // BRPC_WITH_GDR
+    {
         source->cutn(&msg->meta, meta_size);
         source->cutn(&msg->payload, body_size - meta_size);
     }
-#else
-    source->cutn(&msg->meta, meta_size);
-    source->cutn(&msg->payload, body_size - meta_size);
-#endif  // BRPC_WITH_GDR
     return MakeMessage(msg);
 }
 
@@ -862,9 +863,7 @@ void ProcessRpcRequest(InputMessageBase* msg_base) {
             butil::IOBuf req_buf;
             int body_without_attachment_size = req_size - meta.attachment_size();
 #if BRPC_WITH_GDR
-            int meta_size = msg->meta.size();
-            uint64_t data_meta = msg->payload.get_first_data_meta();
-            bool is_gpu_memory = (data_meta > 0 && data_meta <= UINT_MAX);
+            bool is_gpu_memory = msg->payload.is_gpu_memory();
             if(is_gpu_memory) {
                 int64_t real_prefetch_d2h_size = msg->meta.get_first_data_meta();
                 if (header_size + meta_size + body_without_attachment_size <= real_prefetch_d2h_size) {
@@ -877,13 +876,11 @@ void ProcessRpcRequest(InputMessageBase* msg_base) {
                 } else {
                     msg->payload.cutn_from_gpu(&req_buf, body_without_attachment_size);
                 }
-            }
-            else {
+            } else
+#endif  // BRPC_WITH_GDR
+            {
                 msg->payload.cutn(&req_buf, body_without_attachment_size);
             }
-#else
-            msg->payload.cutn(&req_buf, body_without_attachment_size);
-#endif  // BRPC_WITH_GDR
             if (meta.attachment_size() > 0) {
                 cntl->request_attachment().swap(msg->payload);
             }
@@ -1058,8 +1055,7 @@ void ProcessRpcResponse(InputMessageBase* msg_base) {
         butil::IOBuf* res_buf_ptr = &msg->payload;
 
 #if BRPC_WITH_GDR
-        uint64_t data_meta = msg->payload.get_first_data_meta();
-        bool is_gpu_memory = (data_meta > 0 && data_meta <= UINT_MAX);
+        bool is_gpu_memory = msg->payload.is_gpu_memory();
 #endif  // BRPC_WITH_GDR
         if (meta.has_attachment_size()) {
             if (meta.attachment_size() > res_size) {
@@ -1083,13 +1079,11 @@ void ProcessRpcResponse(InputMessageBase* msg_base) {
                 } else {
                     msg->payload.cutn_from_gpu(&res_buf, body_without_attachment_size);
                 }
-            }
-            else {
+            } else
+#endif  // BRPC_WITH_GDR
+            {
                 msg->payload.cutn(&res_buf, body_without_attachment_size);
             }
-#else
-            msg->payload.cutn(&res_buf, body_without_attachment_size);
-#endif  // BRPC_WITH_GDR
             res_buf_ptr = &res_buf;
             cntl->response_attachment().swap(msg->payload);
 #if BRPC_WITH_GDR

@@ -40,7 +40,9 @@
 #include "butil/fd_guard.h"                 // butil::fd_guard
 #include "butil/iobuf.h"
 #include "butil/iobuf_profiler.h"
+#ifdef BRPC_WITH_GDR
 #include "butil/gpu/gpu_block_pool.h"
+#endif
 
 namespace butil {
 namespace iobuf {
@@ -1552,6 +1554,16 @@ bool IOBuf::equals(const butil::IOBuf& other) const {
     } while (true);
     return true;
 }
+
+#if BRPC_WITH_GDR
+// when IOBuf is used for send, data_meta is set by user;
+// when IOBf is used for recv and gdr is open, data_meta is set by brpc
+//  and it is lkey.
+bool IOBuf::is_gpu_memory() {
+    uint64_t data_meta = get_first_data_meta();
+    return (data_meta > 0 && data_meta <= UINT_MAX);
+}
+#endif
 
 ////////////////////////////// IOPortal //////////////////
 IOPortal::~IOPortal() { return_cached_blocks(); }

@@ -36,7 +36,7 @@ int TransportFactory::ContextInitOrDie(SocketMode mode, bool serverOrNot, const 
         if (RdmaTransport::ContextInitOrDie(serverOrNot, _options) < 0) {
             return -1;
         }
-        return GdrTransport::GdrContextInitOrDie(serverOrNot, _options);
+        return GdrTransport::GdrContextInitOrDie();
     }
 #endif
     else {

@@ -26,13 +26,11 @@
 #include <string>
 #include <vector>
 #include <mutex>
-#include <infiniband/verbs.h>
 #include "butil/containers/hash_tables.h"
 #include "butil/logging.h"
 #include <cuda_runtime.h>
 #include "cuda.h"
 
-// #include "gdrapi.h"
 namespace butil {
 namespace gdr {
 
@@ -51,7 +49,6 @@ struct Region {
     size_t aligned_size;
     size_t blockCount;
     struct ibv_mr *mr {nullptr};
-    uint32_t lkey;
 };
 
 struct BlockHeader {
@@ -74,7 +71,7 @@ class BlockPoolAllocator {
     int g_region_num {0};
     std::mutex poolMutex;
 
-    // 统计信息
+    // stat
     size_t totalAllocated;
     size_t totalDeallocated;
     size_t peakUsage;
@@ -90,7 +87,6 @@ class BlockPoolAllocator {
 
     void DeallocateRaw(void* ptr);
 
-    // 获取统计信息
     void printStatistics() const;
 
     int64_t getCurrentUsage() const {
@@ -105,10 +101,11 @@ class BlockPoolAllocator {
       return BLOCK_SIZE;
     }
 
+    Region* GetRegion(const void* buf);
+
     uint32_t get_lkey(const void* buf);
 
   private:
-    Region* GetRegion(const void* buf);
     void extendRegion();
 };
 
@@ -147,18 +144,7 @@ public:
         instance_ = nullptr;
     }
 
-    void init(int gpu_id, ibv_pd* pd) {
-        LOG(INFO) << "set GPU BlockPoolAllocator for " << gpu_id;
-        size_t region_size = 512LL * 1024 * 1024;
-        size_t block_size = gdr_block_size_kb * 1024;
-        gpu_mem_alloc = new BlockPoolAllocator(gpu_id, true, pd, block_size, region_size);
-
-        region_size = 32LL * 1024 * 1024;
-        block_size = 512;
-        cpu_mem_alloc = new BlockPoolAllocator(gpu_id, false, pd, block_size, region_size);
-
-        gpu_stream_pool = new GPUStreamPool(gpu_id);
-    }
+    void init(int gpu_id, ibv_pd* pd);
 
     BlockPoolAllocator* get_gpu_allocator() {
         return gpu_mem_alloc;
