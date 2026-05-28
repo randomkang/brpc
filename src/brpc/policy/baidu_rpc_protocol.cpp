@@ -119,8 +119,8 @@ ParseResult ParseRpcMessage(butil::IOBuf* source, Socket* socket,
 
 #if BRPC_WITH_GDR
     void* prefetch_d2h_data = NULL;
-    uint32_t data_meta = source->get_first_data_meta_high32();
-    bool is_gpu_memory = (data_meta == static_cast<uint32_t>(butil::IOBuf::GPU_MEMORY));
+    uint64_t data_meta = source->get_first_data_meta();
+    bool is_gpu_memory = (data_meta > 0 && data_meta <= UINT_MAX);
     butil::gdr::BlockPoolAllocator* host_allocator = butil::gdr::BlockPoolAllocators::singleton()->get_cpu_allocator();
     if (is_gpu_memory) {
         prefetch_d2h_data = host_allocator->AllocateRaw(prefetch_d2h_size);
@@ -863,8 +863,8 @@ void ProcessRpcRequest(InputMessageBase* msg_base) {
             int body_without_attachment_size = req_size - meta.attachment_size();
 #if BRPC_WITH_GDR
             int meta_size = msg->meta.size();
-            uint32_t data_meta = msg->payload.get_first_data_meta_high32();
-            bool is_gpu_memory = (data_meta == static_cast<uint32_t>(butil::IOBuf::GPU_MEMORY));
+            uint64_t data_meta = msg->payload.get_first_data_meta();
+            bool is_gpu_memory = (data_meta > 0 && data_meta <= UINT_MAX);
             if(is_gpu_memory) {
                 int64_t real_prefetch_d2h_size = msg->meta.get_first_data_meta();
                 if (header_size + meta_size + body_without_attachment_size <= real_prefetch_d2h_size) {
@@ -1058,8 +1058,8 @@ void ProcessRpcResponse(InputMessageBase* msg_base) {
         butil::IOBuf* res_buf_ptr = &msg->payload;
 
 #if BRPC_WITH_GDR
-        uint32_t data_meta = msg->payload.get_first_data_meta_high32();
-        bool is_gpu_memory = (data_meta == static_cast<uint32_t>(butil::IOBuf::GPU_MEMORY));
+        uint64_t data_meta = msg->payload.get_first_data_meta();
+        bool is_gpu_memory = (data_meta > 0 && data_meta <= UINT_MAX);
 #endif  // BRPC_WITH_GDR
         if (meta.has_attachment_size()) {
             if (meta.attachment_size() > res_size) {
