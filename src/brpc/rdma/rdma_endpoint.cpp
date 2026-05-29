@@ -174,7 +174,7 @@ RdmaResource::~RdmaResource() {
 
 RdmaEndpoint::RdmaEndpoint(Socket* s, bool use_gdr)
     : _socket(s)
-    : _use_gdr(use_gdr)
+    , _use_gdr(use_gdr)
     , _state(UNINIT)
     , _resource(NULL)
     , _send_cq_events(0)
@@ -1103,7 +1103,9 @@ int RdmaEndpoint::DoPostRecvGDR(void* block, size_t block_size, uint32_t lkey) {
 int RdmaEndpoint::PostRecv(uint32_t num, bool zerocopy) {
     // We do the post repeatedly from the _rbuf[_rq_received].
     while (num > 0) {
+#if BRPC_WITH_GDR
         uint32_t lkey = 0;
+#endif  // if BRPC_WITH_GDR
         if (zerocopy) {
             _rbuf[_rq_received].clear();
 
