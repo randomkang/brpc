@@ -22,9 +22,11 @@
 #include <google/protobuf/io/coded_stream.h>
 #include <google/protobuf/text_format.h>
 
-#include "butil/logging.h"                       // LOG()
-#include "butil/iobuf.h"                         // butil::IOBuf
+#if BRPC_WITH_GDR
 #include "butil/gpu/gpu_block_pool.h"
+#endif
+#include "butil/iobuf.h"                         // butil::IOBuf
+#include "butil/logging.h"                       // LOG()
 #include "butil/raw_pack.h"                      // RawPacker RawUnpacker
 #include "butil/memory/scope_guard.h"
 #include "butil/raw_pack.h"                      // RawPacker RawUnpacker
@@ -1050,11 +1052,11 @@ void ProcessRpcResponse(InputMessageBase* msg_base) {
         } 
         // Parse response message iff error code from meta is 0
         butil::IOBuf res_buf;
-        int meta_size = msg->meta.size();
         const int res_size = msg->payload.length();
         butil::IOBuf* res_buf_ptr = &msg->payload;
 
 #if BRPC_WITH_GDR
+        int meta_size = msg->meta.size();
         bool is_gpu_memory = msg->payload.is_gpu_memory();
 #endif  // BRPC_WITH_GDR
         if (meta.has_attachment_size()) {

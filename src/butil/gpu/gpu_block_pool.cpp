@@ -163,13 +163,13 @@ static BlockHeaderList* get_bh_list() {
     return bh_list;
 }
 
-BlockPoolAllocator::BlockPoolAllocator(int gpu_id, bool on_gpu, ibv_pd* brpc_pd,
-    size_t block_size, size_t region_size) :
-    gpu_id(gpu_id)
-    , on_gpu(on_gpu)
-    , pd(brpc_pd)
-    , BLOCK_SIZE(std::max(block_size, sizeof(BlockHeader)))
-    , REGION_SIZE((region_size / block_size) * block_size)  // 对齐到块大小的倍数
+BlockPoolAllocator::BlockPoolAllocator(int gpuId, bool onGpu, ibv_pd* ibvPd,
+    size_t blockSize, size_t regionSize) :
+    gpu_id(gpuId)
+    , on_gpu(onGpu)
+    , pd(ibvPd)
+    , BLOCK_SIZE(std::max(blockSize, sizeof(BlockHeader)))
+    , REGION_SIZE((regionSize / blockSize) * blockSize)  // 对齐到块大小的倍数
     , freeList(nullptr)
     , g_region_num(0)
     , totalAllocated(0)

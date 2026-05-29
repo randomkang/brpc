@@ -77,8 +77,8 @@ class BlockPoolAllocator {
     size_t peakUsage;
 
   public:
-    explicit BlockPoolAllocator(int gpu_id,
-                                bool on_gpu, ibv_pd* pd,
+    explicit BlockPoolAllocator(int gpuId,
+                                bool onGpu, ibv_pd* ibvPd,
                                 size_t blockSize, size_t regionSize);
 
     ~BlockPoolAllocator();

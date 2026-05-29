@@ -19,7 +19,9 @@
 
 #include <gflags/gflags.h>
 #include "butil/fd_utility.h"
+#if BRPC_WITH_GDR
 #include "butil/gpu/gpu_block_pool.h"
+#endif
 #include "butil/logging.h"                   // CHECK, LOG
 #include "butil/sys_byteorder.h"             // HostToNet,NetToHost
 #include "bthread/bthread.h"
@@ -93,6 +95,7 @@ static uint16_t g_rdma_hello_msg_len = 40;  // In Byte
 static uint16_t g_rdma_hello_version = 2;
 static uint16_t g_rdma_impl_version = 1;
 static uint32_t g_rdma_recv_block_size = 0;
+static uint32_t g_gdr_recv_block_size = 0;
 
 // static const uint32_t MAX_INLINE_DATA = 64;
 static const uint8_t MAX_HOP_LIMIT = 16;
@@ -1129,7 +1132,7 @@ int RdmaEndpoint::PostRecv(uint32_t num, bool zerocopy) {
         }
 #if BRPC_WITH_GDR
         if (_use_gdr) {
-            if (DoPostRecvGDR(_rbuf_data[_rq_received], g_rdma_recv_block_size, lkey) < 0) {
+            if (DoPostRecvGDR(_rbuf_data[_rq_received], g_gdr_recv_block_size, lkey) < 0) {
                 _rbuf[_rq_received].clear();
                 return -1;
             }
@@ -1684,7 +1687,7 @@ void RdmaEndpoint::DebugInfo(std::ostream& os, butil::StringPiece connector) con
        << connector << "rdma_unsignaled_sq_wr=" << _sq_unsignaled;
 }
 
-int RdmaEndpoint::GlobalInitialize() {
+int RdmaEndpoint::GlobalGdrInitialize() {
 #if BRPC_WITH_GDR
     g_gdr_recv_block_size = butil::gdr::GetGdrBlockSize() * 1024 - IOBUF_BLOCK_HEADER_LEN;
     LOG(INFO) << "g_gdr_recv_block_size: " << g_gdr_recv_block_size;
