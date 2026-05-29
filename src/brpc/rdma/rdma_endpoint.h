@@ -237,6 +237,9 @@ private:
     // Not owner
     Socket* _socket;
 
+    // whether open gpu direct rdma
+    bool _use_gdr;
+
     // State of Handshake
     State _state;
 
@@ -320,8 +323,6 @@ private:
         std::atomic<bool> running;
     };
     static std::vector<PollerGroup> _poller_groups;
-
-    bool _use_gdr;
 };
 
 }  // namespace rdma
