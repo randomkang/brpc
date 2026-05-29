@@ -77,6 +77,7 @@ DECLARE_bool(pb_enum_as_number);
 
 // Pack header into `buf'
 
+#if BRPC_WITH_GDR
 const int header_size = 12;
 // if we recv data into gpu, the header/meta/body will be copied to cpu and processed.
 // in to to limit the count of d2h, we will prefetch 512B from gpu to cpu.
@@ -84,6 +85,7 @@ const int header_size = 12;
 // d2h is enough for one rpc.
 
 const int prefetch_d2h_size = 512;
+#endif
 
 inline void PackRpcHeader(char* rpc_header, uint32_t meta_size, int payload_size) {
     uint32_t* dummy = (uint32_t*)rpc_header;  // suppress strict-alias warning
