@@ -1115,7 +1115,7 @@ int RdmaEndpoint::PostRecv(uint32_t num, bool zerocopy) {
                 void* device_ptr = device_allocator->AllocateRaw(g_gdr_recv_block_size);
                 auto deleter = [device_allocator](void* data) { device_allocator->DeallocateRaw(data); };
                 lkey = device_allocator->get_lkey(device_ptr);
-                _rbuf[_rq_received].append_user_data_with_meta(device_ptr, g_gdr_recv_block_size, deleter, data_meta, lkey);
+                _rbuf[_rq_received].append_user_data_with_meta(device_ptr, g_gdr_recv_block_size, deleter, lkey);
                 _rbuf_data[_rq_received] = device_ptr;
             } else
 #endif  // if BRPC_WITH_GDR

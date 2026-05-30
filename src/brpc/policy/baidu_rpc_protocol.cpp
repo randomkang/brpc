@@ -867,6 +867,7 @@ void ProcessRpcRequest(InputMessageBase* msg_base) {
             butil::IOBuf req_buf;
             int body_without_attachment_size = req_size - meta.attachment_size();
 #if BRPC_WITH_GDR
+            int meta_size = msg->meta.size();
             bool is_gpu_memory = msg->payload.is_gpu_memory();
             if(is_gpu_memory) {
                 int64_t real_prefetch_d2h_size = msg->meta.get_first_data_meta();
