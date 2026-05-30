@@ -53,6 +53,16 @@ void PackRpcRequest(butil::IOBuf* buf,
 // Returns the `name' of the 'content_type'.
 const char* ContentTypeToCStr(ContentType content_type);
 
+#if BRPC_WITH_GDR
+// Parse binary format of baidu_std
+ParseResult ParseRpcMessageGpu(butil::IOBuf* source, Socket *socket, bool read_eof,
+                            const void *arg);
+
+void FillReqBufGpu(butil::IOBuf* req_buf, MostCommonMessage* msg, int body_without_attachment_size);
+
+void FillResBufGpu(butil::IOBuf* res_buf, MostCommonMessage* msg, const RpcMeta& meta);
+
+#endif
 }  // namespace policy
 } // namespace brpc
 
