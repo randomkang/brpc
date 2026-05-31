@@ -176,10 +176,10 @@ void FillReqBufGpu(butil::IOBuf* req_buf, MostCommonMessage* msg, int body_witho
     }
 }
 
-void FillResBufGpu(butil::IOBuf* res_buf, MostCommonMessage* msg, const RpcMeta& meta) {
+void FillResBufGpu(butil::IOBuf* res_buf, MostCommonMessage* msg, const RpcMeta& meta,
+                   butil::IOBuf** res_buf_ptr, Controller* cntl) {
     const int res_size = msg->payload.length();
     int meta_size = msg->meta.size();
-    butil::IOBuf* res_buf_ptr = &msg->payload;
     bool is_gpu_memory = msg->payload.is_gpu_memory();
     if (!is_gpu_memory) {
         LOG(FATAL) << "message is not on gpu!!!";
@@ -189,7 +189,7 @@ void FillResBufGpu(butil::IOBuf* res_buf, MostCommonMessage* msg, const RpcMeta&
             cntl->SetFailed(
                     ERESPONSE, "attachment_size=%d is larger than response_size=%d",
                     meta.attachment_size(), res_size);
-            break;
+            return;
         }
         int body_without_attachment_size = res_size - meta.attachment_size();
 
@@ -204,7 +204,7 @@ void FillResBufGpu(butil::IOBuf* res_buf, MostCommonMessage* msg, const RpcMeta&
         } else {
             msg->payload.cutn_from_gpu(res_buf, body_without_attachment_size);
         }
-        res_buf_ptr = res_buf;
+        *res_buf_ptr = res_buf;
         cntl->response_attachment().swap(msg->payload);
     } else {
         int64_t real_prefetch_d2h_size = msg->meta.get_first_data_meta();
@@ -218,7 +218,7 @@ void FillResBufGpu(butil::IOBuf* res_buf, MostCommonMessage* msg, const RpcMeta&
         } else {
             msg->payload.cutn_from_gpu(res_buf, res_size);
         }
-        res_buf_ptr = res_buf;
+        *res_buf_ptr = res_buf;
     }
 }
 

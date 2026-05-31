@@ -805,7 +805,7 @@ void ProcessRpcRequest(InputMessageBase* msg_base) {
 #if BRPC_WITH_GDR
             bool is_gpu_memory = msg->payload.is_gpu_memory();
             if (is_gpu_memory) {
-                FillReqBufGpu(&req_buf, msg, body_without_attachment_size);
+                FillReqBufGpu(&req_buf, msg.get(), body_without_attachment_size);
             } else
 #endif  // BRPC_WITH_GDR
             {
@@ -985,7 +985,7 @@ void ProcessRpcResponse(InputMessageBase* msg_base) {
 #if BRPC_WITH_GDR
         bool is_gpu_memory = msg->payload.is_gpu_memory();
         if (is_gpu_memory) {
-            FillResBufGpu(&res_buf, msg, meta);
+            FillResBufGpu(&res_buf, msg.get(), meta, &res_buf_ptr, cntl);
         } else
 #endif  // BRPC_WITH_GDR
         {

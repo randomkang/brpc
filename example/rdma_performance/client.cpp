@@ -97,9 +97,8 @@ public:
                 auto pd = brpc::rdma::GetRdmaPd();
                 mr = ibv_reg_mr(pd, _addr, attachment_size,
                         IBV_ACCESS_LOCAL_WRITE |
-                        IBV_ACCESS_LOCAL_READ |
-                        IBV_ACCESS_REMOTE_WRITE |
-                        );
+                        IBV_ACCESS_REMOTE_READ |
+                        IBV_ACCESS_REMOTE_WRITE);
                 if (!mr) {
                     LOG(FATAL) << "Failed to register MR:" << strerror(errno)
                         << ", addr:" << _addr;
