@@ -142,6 +142,7 @@ config_setting(
     define_values = {
         "with_bthread_tracer": "true",
     },
+    visibility = ["//visibility:public"],
 )
 
 config_setting(

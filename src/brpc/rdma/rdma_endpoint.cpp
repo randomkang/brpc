@@ -58,8 +58,6 @@ DEFINE_int32(rdma_sq_size, 128, "SQ size for RDMA");
 DEFINE_int32(rdma_rq_size, 128, "RQ size for RDMA");
 DEFINE_bool(rdma_recv_zerocopy, true, "Enable zerocopy for receive side");
 DEFINE_int32(rdma_zerocopy_min_size, 512, "The minimal size for receive zerocopy");
-DEFINE_string(rdma_recv_block_type, "default", "Default size type for recv WR: "
-              "default(8KB - 32B)/large(64KB - 32B)/huge(2MB - 32B)");
 DEFINE_int32(rdma_cqe_poll_once, 32, "The maximum of cqe number polled once.");
 DEFINE_int32(rdma_prepared_qp_size, 128, "SQ and RQ size for prepared QP.");
 DEFINE_int32(rdma_prepared_qp_cnt, 256, "Initial count of prepared QP.");
@@ -1396,6 +1394,21 @@ static void DeallocateCq(ibv_cq* cq) {
     LOG_IF(WARNING, 0 != err) << "Fail to destroy CQ: " << berror(err);
 }
 
+static int DrainCq(ibv_cq* cq) {
+    if (NULL == cq) {
+        return 0;
+    }
+
+    ibv_wc wc;
+    int ret;
+    do {
+        ret = ibv_poll_cq(cq, 1, &wc);
+    } while (ret > 0);
+
+    LOG_IF(ERROR, ret < 0) << "drain CQ failed: " << ret;
+    return ret;
+}
+
 void RdmaEndpoint::DeallocateResources() {
     if (!_resource) {
         return;
@@ -1422,6 +1435,7 @@ void RdmaEndpoint::DeallocateResources() {
     }
 
     bool remove_consumer = true;
+_reclaim:
     if (!move_to_rdma_resource_list) {
         if (NULL != _resource->qp) {
             int err = IbvDestroyQp(_resource->qp);
@@ -1465,6 +1479,24 @@ void RdmaEndpoint::DeallocateResources() {
     }
 
     if (move_to_rdma_resource_list) {
+        // When a QP is moved to the RESET state, all associated send and
+        // receive queues are flushed, meaning any outstanding WRs are effectively
+        // abandoned by the hardware.
+        //
+        // However, the CQ associated with that QP is *not* cleared automatically,
+        // meaning that it will still contain entries for WRs that completed before
+        // the reset.
+        //
+        // The application should finish polling the CQ to remove these obsolete
+        // entries before reusing the QP.
+        int ret = DrainCq(_resource->polling_cq);
+        ret += DrainCq(_resource->send_cq);
+        ret += DrainCq(_resource->recv_cq);
+        if (ret < 0) {
+            move_to_rdma_resource_list = false;
+            goto _reclaim;
+        }
+
         BAIDU_SCOPED_LOCK(*g_rdma_resource_mutex);
         _resource->next = g_rdma_resource_list;
         g_rdma_resource_list = _resource;
@@ -1698,13 +1730,8 @@ int RdmaEndpoint::GlobalGdrInitialize() {
 }
 
 int RdmaEndpoint::GlobalInitialize() {
-    if (FLAGS_rdma_recv_block_type == "default") {
-        g_rdma_recv_block_size = GetBlockSize(0) - IOBUF_BLOCK_HEADER_LEN;
-    } else if (FLAGS_rdma_recv_block_type == "large") {
-        g_rdma_recv_block_size = GetBlockSize(1) - IOBUF_BLOCK_HEADER_LEN;
-    } else if (FLAGS_rdma_recv_block_type == "huge") {
-        g_rdma_recv_block_size = GetBlockSize(2) - IOBUF_BLOCK_HEADER_LEN;
-    } else {
+    g_rdma_recv_block_size = GetRdmaBlockSize() - IOBUF_BLOCK_HEADER_LEN;
+    if (g_rdma_recv_block_size <= 0) {
         LOG(ERROR) << "rdma_recv_block_type incorrect "
                    << "(valid value: default/large/huge)";
         errno = EINVAL;

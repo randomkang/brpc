@@ -40,7 +40,7 @@ if(POLICY CMP0042)
     cmake_policy(SET CMP0042 NEW)
 endif()
 
-set(BRPC_VERSION 1.16.0)
+set(BRPC_VERSION 1.17.0)
 
 SET(CPACK_GENERATOR "DEB")
 SET(CPACK_DEBIAN_PACKAGE_MAINTAINER "brpc authors")
@@ -206,11 +206,13 @@ if(Protobuf_VERSION GREATER 4.21)
         absl::hash
         absl::layout
         absl::log_initialize
+        absl::log_globals
         absl::log_severity
         absl::memory
         absl::node_hash_map
         absl::node_hash_set
-        absl::optional
+        absl::random_distributions
+        absl::random_random
         absl::span
         absl::status
         absl::statusor
