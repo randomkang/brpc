@@ -28,7 +28,7 @@
 
 DEFINE_int32(port, 8002, "TCP Port of this server");
 DEFINE_bool(use_rdma, true, "Use RDMA or not");
-DEFINE_bool(use_gdr, false, "Use RDMA or not");
+DEFINE_bool(use_gdr, false, "Use GDR or not");
 
 butil::atomic<uint64_t> g_last_time(0);
 

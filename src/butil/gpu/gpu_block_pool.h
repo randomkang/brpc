@@ -69,6 +69,7 @@ class BlockPoolAllocator {
 
     BlockHeader* freeList;
     int g_region_num {0};
+    std::vector<Region> g_regions;
     std::mutex poolMutex;
 
     // stat

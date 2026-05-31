@@ -19,6 +19,8 @@
 #ifndef BRPC_POLICY_BRPC_PROTOCOL_H
 #define BRPC_POLICY_BRPC_PROTOCOL_H
 
+#include "brpc/policy/baidu_rpc_meta.pb.h"      // RpcRequestMeta
+#include "brpc/policy/most_common_message.h"
 #include "brpc/protocol.h"
 
 namespace brpc {
@@ -60,7 +62,8 @@ ParseResult ParseRpcMessageGpu(butil::IOBuf* source, Socket *socket, bool read_e
 
 void FillReqBufGpu(butil::IOBuf* req_buf, MostCommonMessage* msg, int body_without_attachment_size);
 
-void FillResBufGpu(butil::IOBuf* res_buf, MostCommonMessage* msg, const RpcMeta& meta);
+void FillResBufGpu(butil::IOBuf* res_buf, MostCommonMessage* msg, const RpcMeta& meta,
+                   butil::IOBuf** res_buf_ptr, Controller* cntl);
 
 #endif
 }  // namespace policy

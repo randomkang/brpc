@@ -1012,13 +1012,12 @@ ssize_t RdmaEndpoint::HandleCompletion(ibv_wc& wc) {
             if (_use_gdr) {
                 zerocopy = true;
             } else
-#else
+#endif // BRPC_WITH_GDR
             {
                 if (wc.byte_len < (uint32_t)FLAGS_rdma_zerocopy_min_size) {
                     zerocopy = false;
                 }
             }
-#endif // BRPC_WITH_GDR
             CHECK(_state != FALLBACK_TCP);
             if (zerocopy) {
                 _rbuf[_rq_received].cutn(&_socket->_read_buf, wc.byte_len);
@@ -1692,7 +1691,7 @@ void RdmaEndpoint::DebugInfo(std::ostream& os, butil::StringPiece connector) con
 
 int RdmaEndpoint::GlobalGdrInitialize() {
 #if BRPC_WITH_GDR
-    g_gdr_recv_block_size = butil::gdr::GetGdrBlockSize() * 1024 - IOBUF_BLOCK_HEADER_LEN;
+    g_gdr_recv_block_size = butil::gdr::GetGdrBlockSize() - IOBUF_BLOCK_HEADER_LEN;
     LOG(INFO) << "g_gdr_recv_block_size: " << g_gdr_recv_block_size;
 #endif // BRPC_WITH_GDR
     return 0;

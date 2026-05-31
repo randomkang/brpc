@@ -231,7 +231,7 @@ uint32_t BlockPoolAllocator::get_lkey(const void* buf) {
         return 0;
     }
     
-    if(!r->mr) {
+    if (!r->mr) {
         LOG(FATAL) << "region has not been registered into rdma yet, addr:" << r->start;
         return 0;
     }

@@ -46,7 +46,7 @@ COPTS = [
     "//bazel/config:brpc_with_rdma": ["-DBRPC_WITH_RDMA=1"],
     "//conditions:default": [""],
 }) + select({
-    "//bazel/config:brpc_with_gdr": ["-DBRPC_WITH_gdr=1"],
+    "//bazel/config:brpc_with_gdr": ["-DBRPC_WITH_GDR=1"],
     "//conditions:default": [""],
 }) + select({
     "//bazel/config:brpc_with_debug_bthread_sche_safety": ["-DBRPC_DEBUG_BTHREAD_SCHE_SAFETY=1"],
