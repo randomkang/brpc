@@ -222,6 +222,7 @@ void FillResBufGpu(butil::IOBuf* res_buf, MostCommonMessage* msg, const RpcMeta&
     }
 }
 
-#endif
 }  // namespace policy
 } // namespace brpc
+
+#endif
