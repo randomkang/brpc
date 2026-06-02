@@ -53,7 +53,7 @@ DEFINES = [
      "//conditions:default": [],
 }) + select({
     "//bazel/config:brpc_with_gdr": ["-DBRPC_WITH_GDR=1"],
-    "//conditions:default": [""],
+    "//conditions:default": [],
  }) + select({
      "//bazel/config:brpc_with_debug_bthread_sche_safety": ["BRPC_DEBUG_BTHREAD_SCHE_SAFETY=1"],
      "//conditions:default": ["BRPC_DEBUG_BTHREAD_SCHE_SAFETY=0"],
