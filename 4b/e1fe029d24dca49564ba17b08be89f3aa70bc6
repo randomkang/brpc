@@ -1,0 +1,28 @@
+src/brpc/rdma/rdma_endpoint.cpp
+  h_a063f919c85e3f 20,1405-1413,1461-1473
+src/brpc/rdma/rdma_endpoint.h
+  h_a063f919c85e3f 317-323
+src/brpc/rdma/rdma_handshake.cpp
+  h_a063f919c85e3f 289-294,327-335,398-400,421-428
+src/brpc/rdma/rdma_handshake.h
+  h_a063f919c85e3f 56-63
+src/brpc/rdma/rdma_handshake.proto
+  h_a063f919c85e3f 58-67
+src/brpc/rdma/rdma_helper.cpp
+  h_a063f919c85e3f 86,463,473,523,694-697
+src/brpc/rdma/rdma_helper.h
+  h_a063f919c85e3f 71-73
+test/brpc_rdma_unittest.cpp
+  h_a063f919c85e3f 2205-2473
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "4be1fe029d24dca49564ba17b08be89f3aa70bc6",
+  "prompts": {},
+  "humans": {
+    "h_a063f919c85e3f": {
+      "author": "randomkang <550941794@qq.com>"
+    }
+  }
+}
