@@ -35,11 +35,11 @@ src/brpc/gdr_transport.h
 src/brpc/input_messenger_processor.cpp
   h_a063f919c85e3f 289-290
 src/brpc/policy/baidu_rpc_protocol.cpp
-  h_a063f919c85e3f 107-112,832-846,1041-1044,1047-1050,1053,1056-1062
+  h_a063f919c85e3f 107-112,832-846,1041-1044,1047-1050,1051-1052,1053,1054-1055,1056-1062
 src/brpc/policy/baidu_rpc_protocol.h
   h_a063f919c85e3f 22-23,58-72
 src/brpc/policy/baidu_rpc_protocol_gpu.cpp
-  h_a063f919c85e3f 1-294
+  h_a063f919c85e3f 1-294,1-266,268-294
 src/brpc/rdma/rdma_endpoint.cpp
   h_a063f919c85e3f 23-25,87-89,109,138,142,1081-1089,1151-1172,1176-1178,1181-1221,1224-1236,1238,1991-2008
 src/brpc/rdma/rdma_endpoint.h
