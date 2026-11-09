@@ -1,0 +1,14 @@
+src/butil/config.h.in
+  h_a063f919c85e3f 30-32,36
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "e82b02dd6e98e72fd4564dcdd3ef7131928204ff",
+  "prompts": {},
+  "humans": {
+    "h_a063f919c85e3f": {
+      "author": "randomkang <550941794@qq.com>"
+    }
+  }
+}
