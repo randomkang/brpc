@@ -1,0 +1,30 @@
+src/brpc/policy/baidu_rpc_protocol_gpu.cpp
+  h_a063f919c85e3f 267-270
+  h_a063f919c85e3f 173
+example/rdma_performance/test.proto
+  h_a063f919c85e3f 25
+src/brpc/policy/baidu_rpc_protocol.cpp
+  h_a063f919c85e3f 848-852
+example/rdma_performance/client.cpp
+  h_a063f919c85e3f 46,162,190-198
+  h_a063f919c85e3f 22,109,199-200,284
+src/brpc/policy/crc32c_checksum.cpp
+  h_a063f919c85e3f 32-58,63-70
+src/brpc/rdma/rdma_endpoint.cpp
+  h_a063f919c85e3f 1196
+src/butil/iobuf.cpp
+  h_a063f919c85e3f 1239,1637,1641
+src/butil/iobuf.h
+  h_a063f919c85e3f 154,157,279
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "f59bb455f5bfcdd8e14b3fedaba5bebb160696b2",
+  "prompts": {},
+  "humans": {
+    "h_a063f919c85e3f": {
+      "author": "randomkang <550941794@qq.com>"
+    }
+  }
+}
