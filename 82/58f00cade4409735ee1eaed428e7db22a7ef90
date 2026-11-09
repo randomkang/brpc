@@ -1,0 +1,16 @@
+src/butil/config.h.in
+  h_a063f919c85e3f 29-34
+test/flatbuffers_codegen/CMakeLists.txt
+  h_a063f919c85e3f 82-85
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "8258f00cade4409735ee1eaed428e7db22a7ef90",
+  "prompts": {},
+  "humans": {
+    "h_a063f919c85e3f": {
+      "author": "randomkang <550941794@qq.com>"
+    }
+  }
+}
