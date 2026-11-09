@@ -1,0 +1,14 @@
+test/flatbuffers_codegen/CMakeLists.txt
+  h_a063f919c85e3f 83-86
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "326ff28262167dd7932ff786a91750d586552f33",
+  "prompts": {},
+  "humans": {
+    "h_a063f919c85e3f": {
+      "author": "randomkang <550941794@qq.com>"
+    }
+  }
+}
