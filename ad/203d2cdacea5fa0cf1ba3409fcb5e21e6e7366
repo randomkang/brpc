@@ -1,0 +1,15 @@
+src/butil/iobuf.cpp
+  h_a063f919c85e3f 794-798,800-803,805-807,809-813
+  h_a063f919c85e3f 799,804
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "ad203d2cdacea5fa0cf1ba3409fcb5e21e6e7366",
+  "prompts": {},
+  "humans": {
+    "h_a063f919c85e3f": {
+      "author": "randomkang <550941794@qq.com>"
+    }
+  }
+}
