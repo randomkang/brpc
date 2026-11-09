@@ -1,0 +1,14 @@
+src/brpc/rdma/rdma_endpoint.cpp
+  h_a063f919c85e3f 1099-1110
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "55c15229019b5395a955cc7a19b1ea2d4e26fb41",
+  "prompts": {},
+  "humans": {
+    "h_a063f919c85e3f": {
+      "author": "randomkang <550941794@qq.com>"
+    }
+  }
+}
