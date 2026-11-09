@@ -1,0 +1,14 @@
+src/brpc/channel.cpp
+  h_a063f919c85e3f 90,93-98
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "c0cb9ab7ea6c626405d6aa95f76c2fe04b49fc43",
+  "prompts": {},
+  "humans": {
+    "h_a063f919c85e3f": {
+      "author": "randomkang <550941794@qq.com>"
+    }
+  }
+}
