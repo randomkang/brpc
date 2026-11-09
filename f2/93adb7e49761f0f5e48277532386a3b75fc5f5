@@ -1,0 +1,16 @@
+src/brpc/policy/baidu_rpc_protocol.cpp
+  h_a063f919c85e3f 848-873
+src/brpc/policy/baidu_rpc_protocol_gpu.cpp
+  h_a063f919c85e3f 267-281
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "f293adb7e49761f0f5e48277532386a3b75fc5f5",
+  "prompts": {},
+  "humans": {
+    "h_a063f919c85e3f": {
+      "author": "randomkang <550941794@qq.com>"
+    }
+  }
+}
