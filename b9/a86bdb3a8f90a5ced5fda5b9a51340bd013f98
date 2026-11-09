@@ -1,0 +1,18 @@
+example/rdma_performance/client.cpp
+  h_a063f919c85e3f 45,161,189-197,281
+example/rdma_performance/server.cpp
+  h_a063f919c85e3f 19-20
+example/rdma_performance/test.proto
+  h_a063f919c85e3f 25
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "b9a86bdb3a8f90a5ced5fda5b9a51340bd013f98",
+  "prompts": {},
+  "humans": {
+    "h_a063f919c85e3f": {
+      "author": "randomkang <550941794@qq.com>"
+    }
+  }
+}
