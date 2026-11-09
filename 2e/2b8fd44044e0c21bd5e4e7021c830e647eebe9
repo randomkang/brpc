@@ -1,0 +1,14 @@
+src/brpc/acceptor.h
+  h_a063f919c85e3f 138
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "2e2b8fd44044e0c21bd5e4e7021c830e647eebe9",
+  "prompts": {},
+  "humans": {
+    "h_a063f919c85e3f": {
+      "author": "randomkang <550941794@qq.com>"
+    }
+  }
+}
