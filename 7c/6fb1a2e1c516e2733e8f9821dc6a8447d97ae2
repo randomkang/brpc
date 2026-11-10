@@ -1,0 +1,16 @@
+CMakeLists.txt
+  h_a063f919c85e3f 108-114
+example/rdma_performance/CMakeLists.txt
+  h_a063f919c85e3f 48-51
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "7c6fb1a2e1c516e2733e8f9821dc6a8447d97ae2",
+  "prompts": {},
+  "humans": {
+    "h_a063f919c85e3f": {
+      "author": "randomkang <550941794@qq.com>"
+    }
+  }
+}
