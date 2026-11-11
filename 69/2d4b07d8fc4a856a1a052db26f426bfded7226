@@ -1,0 +1,91 @@
+example/rdma_performance/test.proto
+  h_a063f919c85e3f 25
+src/brpc/gdr_transport.h
+  h_a063f919c85e3f 1-32
+src/brpc/rdma/rdma_handshake_server.cpp
+  h_a063f919c85e3f 210,212-217
+src/brpc/transport_factory.cpp
+  h_a063f919c85e3f 21,42-50,74-78
+example/rdma_performance/client.cpp
+  h_a063f919c85e3f 18-22,46,51,94-117,124-133,143-147,162,190-200,260-262,283-284,337-340,344-348
+src/brpc/CMakeLists.txt
+  h_a063f919c85e3f 41-50,54-55
+src/brpc/rdma/rdma_helper.h
+  h_a063f919c85e3f 36-39,84-86
+src/brpc/policy/baidu_rpc_protocol.cpp
+  h_a063f919c85e3f 107-112,623-635,845-859,861-865,1059-1062,1065-1080
+src/brpc/policy/baidu_rpc_protocol_gpu.cpp
+  h_a063f919c85e3f 1-277,280-310,313-338
+  h_a063f919c85e3f 278-279,311-312
+config_brpc.sh
+  h_a063f919c85e3f 57,64,101,597-636,781
+docs/en/gdr.md
+  h_a063f919c85e3f 1-44
+src/brpc/input_messenger_processor.cpp
+  h_a063f919c85e3f 289-290
+src/butil/iobuf.h
+  h_a063f919c85e3f 149-159,274-281,287-289
+Makefile
+  h_a063f919c85e3f 100
+example/rdma_performance/Makefile
+  h_a063f919c85e3f 63-65
+src/butil/iobuf.cpp
+  h_a063f919c85e3f 45-47,774-819,1242-1272,1284-1292,1455-1494,1641-1655
+src/brpc/rdma/rdma_endpoint.cpp
+  h_a063f919c85e3f 23-25,87-89,109,138,142,1081-1089,1099-1110,1163-1184,1188-1190,1193-1233,1236-1248,1250,2003-2020
+src/brpc/gdr_transport.cpp
+  h_a063f919c85e3f 1-35
+bazel/config/BUILD.bazel
+  h_a063f919c85e3f 137-142
+src/brpc/socket_mode.h
+  h_a063f919c85e3f 25-26
+example/rdma_performance/server.cpp
+  h_a063f919c85e3f 19-24,37-43,72-127,136-140,153-158
+src/brpc/rdma_transport.h
+  h_a063f919c85e3f 34,68
+src/brpc/policy/crc32c_checksum.cpp
+  h_a063f919c85e3f 32-58,63-70
+src/brpc/policy/baidu_rpc_protocol.h
+  h_a063f919c85e3f 22-23,58-72
+src/brpc/rdma/rdma_helper.cpp
+  h_a063f919c85e3f 28-30,94-95,105,485-498,614-636,638,648-655,757-760
+BUILD.bazel
+  h_a063f919c85e3f 63-67,120-125,285
+src/butil/iobuf_inl.h
+  h_a063f919c85e3f 46-49
+src/brpc/rdma/rdma_endpoint.h
+  h_a063f919c85e3f 109,112,116-119,122-123,249-258,339-341
+CMakeLists.txt
+  h_a063f919c85e3f 37,90-130,161-164
+src/brpc/rdma/rdma_handshake.cpp
+  h_a063f919c85e3f 51-54,57-63,171,259,310
+src/butil/CMakeLists.txt
+  h_a063f919c85e3f 159,293-302
+src/butil/gpu/gpu_block_pool.cpp
+  h_a063f919c85e3f 1-496
+docs/cn/gdr.md
+  h_a063f919c85e3f 1-44
+src/brpc/rdma_transport.cpp
+  h_a063f919c85e3f 33,35-52,71-74
+src/butil/gpu/gpu_block_pool.h
+  h_a063f919c85e3f 1-181
+src/brpc/channel.cpp
+  h_a063f919c85e3f 90,93-98,155-156
+src/brpc/acceptor.h
+  h_a063f919c85e3f 138
+example/BUILD.bazel
+  h_a063f919c85e3f 40-42,168
+example/rdma_performance/CMakeLists.txt
+  h_a063f919c85e3f 24,37-66,72-78
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "692d4b07d8fc4a856a1a052db26f426bfded7226",
+  "prompts": {},
+  "humans": {
+    "h_a063f919c85e3f": {
+      "author": "randomkang <550941794@qq.com>"
+    }
+  }
+}
