@@ -1,0 +1,14 @@
+example/benchmark_fb/smoke.py
+  h_a063f919c85e3f 114-119,121-126
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "bde71b6a05b6a43519ba9938207de3add77261ed",
+  "prompts": {},
+  "humans": {
+    "h_a063f919c85e3f": {
+      "author": "randomkang <550941794@qq.com>"
+    }
+  }
+}
