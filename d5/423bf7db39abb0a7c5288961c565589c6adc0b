@@ -1,0 +1,18 @@
+src/brpc/rdma_transport.cpp
+  h_a063f919c85e3f 31-35,44-47,52-59,63,106-112
+src/brpc/rdma_transport.h
+  h_a063f919c85e3f 27-30
+test/brpc_rdma_unittest.cpp
+  h_a063f919c85e3f 96-100,3586-3626,3627,3628-3629,3630-3633,3634-3644,3652,3657,3665,3670,3673
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "d5423bf7db39abb0a7c5288961c565589c6adc0b",
+  "prompts": {},
+  "humans": {
+    "h_a063f919c85e3f": {
+      "author": "randomkang <550941794@qq.com>"
+    }
+  }
+}
