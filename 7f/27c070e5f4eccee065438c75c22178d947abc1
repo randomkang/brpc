@@ -1,0 +1,14 @@
+BUILD.bazel
+  h_a063f919c85e3f 72-74,129-133,135
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "7f27c070e5f4eccee065438c75c22178d947abc1",
+  "prompts": {},
+  "humans": {
+    "h_a063f919c85e3f": {
+      "author": "randomkang <550941794@qq.com>"
+    }
+  }
+}

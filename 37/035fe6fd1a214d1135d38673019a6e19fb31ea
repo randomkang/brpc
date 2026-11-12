@@ -1,0 +1,14 @@
+src/brpc/server.cpp
+  h_a063f919c85e3f 969-1001
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "37035fe6fd1a214d1135d38673019a6e19fb31ea",
+  "prompts": {},
+  "humans": {
+    "h_a063f919c85e3f": {
+      "author": "randomkang <550941794@qq.com>"
+    }
+  }
+}

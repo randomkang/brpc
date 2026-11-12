@@ -1,0 +1,28 @@
+src/brpc/rdma/rdma_endpoint.cpp
+  h_a063f919c85e3f 2017-2036
+test/brpc_rdma_unittest.cpp
+  h_a063f919c85e3f 94-95,101-107,3586-3592,3594-3597,3599-3605,3607-3610,3612-3613,3615-3623
+src/brpc/checksum.cpp
+  h_a063f919c85e3f 77-80,82,85-86,88,91-92,101
+src/brpc/checksum.h
+  h_a063f919c85e3f 45-50,53-54,71-74,76-77
+src/brpc/policy/baidu_rpc_protocol.cpp
+  h_a063f919c85e3f 171-177,179-185
+src/brpc/policy/crc32c_checksum.cpp
+  h_a063f919c85e3f 37-42,45,50,55,57,59,63,66-68,70,81,83,88-94,96-98,100,105-112,117,120,130-133
+src/brpc/policy/crc32c_checksum.h
+  h_a063f919c85e3f 28-32,34-35
+test/brpc_checksum_unittest.cpp
+  h_a063f919c85e3f 47,73,87,105,123
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "5c84393d406acf3fb39b400656493e1bb342226d",
+  "prompts": {},
+  "humans": {
+    "h_a063f919c85e3f": {
+      "author": "randomkang <550941794@qq.com>"
+    }
+  }
+}
