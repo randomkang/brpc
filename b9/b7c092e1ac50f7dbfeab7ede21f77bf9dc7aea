@@ -1,0 +1,14 @@
+test/brpc_rdma_unittest.cpp
+  h_a063f919c85e3f 96-100
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "b9b7c092e1ac50f7dbfeab7ede21f77bf9dc7aea",
+  "prompts": {},
+  "humans": {
+    "h_a063f919c85e3f": {
+      "author": "randomkang <550941794@qq.com>"
+    }
+  }
+}
