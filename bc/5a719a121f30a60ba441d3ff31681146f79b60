@@ -1,0 +1,18 @@
+docs/cn/gdr.md
+  h_a063f919c85e3f 38-43
+docs/en/gdr.md
+  h_a063f919c85e3f 38-41
+src/brpc/policy/baidu_rpc_protocol.cpp
+  h_a063f919c85e3f 771-788
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "bc5a719a121f30a60ba441d3ff31681146f79b60",
+  "prompts": {},
+  "humans": {
+    "h_a063f919c85e3f": {
+      "author": "randomkang <550941794@qq.com>"
+    }
+  }
+}
